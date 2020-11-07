@@ -1,5 +1,5 @@
 {
-  "name": "auth",
+  "name": "nexc",
   "version": "1.0.0",
   "description": "```bash  > npm i authenticate ```",
   "main": "index.js",
