@@ -737,43 +737,45 @@ app.use('/',userRouter);
 // EXPORT APP
 module.exports = app;`;
 
+exports.auth = () => {
 
-fs.mkdir('controllers', function () {
-        fs.writeFile(`controllers/userController.js`,userController, function (err) {if (err) throw err;}); 
-        fs.writeFile(`controllers/authController.js`,authController, function (err) {if (err) throw err;}); 
+    fs.mkdir('controllers', function () {
+        fs.writeFile(`controllers/userController.js`, userController, function (err) { if (err) throw err; });
+        fs.writeFile(`controllers/authController.js`, authController, function (err) { if (err) throw err; });
     
-});
-fs.mkdir('routes', function () {
-        fs.writeFile(`routes/userRouter.js`,userRouter, function (err) {if (err) throw err;}); 
+    });
+    fs.mkdir('routes', function () {
+        fs.writeFile(`routes/userRouter.js`, userRouter, function (err) { if (err) throw err; });
     
-});
-fs.mkdir('views', function () {
-        fs.writeFile(`views/index.pug`,index, function (err) {if (err) throw err;}); 
-        fs.writeFile(`views/home.pug`,home, function (err) {if (err) throw err;}); 
-        fs.writeFile(`views/login.pug`,login, function (err) {if (err) throw err;}); 
-        fs.writeFile(`views/signup.pug`,signup, function (err) {if (err) throw err;}); 
-        fs.writeFile(`views/mailtrap.pug`,email_pug, function (err) {if (err) throw err;}); 
+    });
+    fs.mkdir('views', function () {
+        fs.writeFile(`views/index.pug`, index, function (err) { if (err) throw err; });
+        fs.writeFile(`views/home.pug`, home, function (err) { if (err) throw err; });
+        fs.writeFile(`views/login.pug`, login, function (err) { if (err) throw err; });
+        fs.writeFile(`views/signup.pug`, signup, function (err) { if (err) throw err; });
+        fs.writeFile(`views/mailtrap.pug`, email_pug, function (err) { if (err) throw err; });
     
-});
-fs.mkdir('utilities', function () {
-        fs.writeFile(`utilities/email.js`,email, function (err) {if (err) throw err;});   
-});
-fs.mkdir('models', function () {
-        fs.writeFile(`models/userModel.js`,userModel, function (err) {if (err) throw err;});   
-});
-fs.mkdir('dist', function () {
-    fs.mkdir('dist/css',function(){});
-    fs.mkdir('dist/img',function(){});
-    fs.mkdir('dist/js',function(){});
-});
-fs.mkdir('src', function () {
-    fs.writeFile(`src/alerts.js`,alerts, function (err) {if (err) throw err;});   
-    fs.writeFile(`src/index.js`,indexjs, function (err) {if (err) throw err;});   
-    fs.writeFile(`src/requests.js`,request, function (err) {if (err) throw err;});   
-});
+    });
+    fs.mkdir('utilities', function () {
+        fs.writeFile(`utilities/email.js`, email, function (err) { if (err) throw err; });
+    });
+    fs.mkdir('models', function () {
+        fs.writeFile(`models/userModel.js`, userModel, function (err) { if (err) throw err; });
+    });
+    fs.mkdir('dist', function () {
+        fs.mkdir('dist/css', function () { });
+        fs.mkdir('dist/img', function () { });
+        fs.mkdir('dist/js', function () { });
+    });
+    fs.mkdir('src', function () {
+        fs.writeFile(`src/alerts.js`, alerts, function (err) { if (err) throw err; });
+        fs.writeFile(`src/index.js`, indexjs, function (err) { if (err) throw err; });
+        fs.writeFile(`src/requests.js`, request, function (err) { if (err) throw err; });
+    });
 
 
 
-fs.writeFile(`webpack.config.js`, webpack_config, function (err) { if (err) throw err; });
-fs.writeFile(`server.js`, server, function (err) { if (err) throw err; });
-fs.writeFile(`app.js`, app, function (err) { if (err) throw err; });
+    fs.writeFile(`webpack.config.js`, webpack_config, function (err) { if (err) throw err; });
+    fs.writeFile(`server.js`, server, function (err) { if (err) throw err; });
+    fs.writeFile(`app.js`, app, function (err) { if (err) throw err; });
+}
