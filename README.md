@@ -1,7 +1,7 @@
 # Initialization
 
 ```bash
- > npm i authenticate
+ > npm i auth
 ```
 
 # Usage
