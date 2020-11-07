@@ -1,7 +1,7 @@
 # Initialization
 
 ```bash
- > npm i nexc
+ > npm i nexl
 ```
 
 # Usage
@@ -11,7 +11,7 @@
 ### 1. Create a **nexc.js** file and copy this
 
 ```javascript
-const { auth } = require("authenticate");
+const { auth } = require("nexl");
 auth();
 ```
 
