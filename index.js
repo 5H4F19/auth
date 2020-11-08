@@ -37,6 +37,19 @@ exports.signup_view = (req, res) => {
     }
 };
 
+exports.reset_view = (req, res) => {
+    try {
+        res.status(200).render('reset', {
+            
+        });
+
+    } catch (err) {
+       res.status(200).render('failed',{
+          
+        });
+    }
+};
+
 exports.login_view =async(req, res) => {
     try {
          const valid = req.params.slug;
@@ -253,6 +266,58 @@ exports.login = async (req, res) => {
     
 };
 
+
+exports.resetToken = async (req, res) => {
+    try {
+        const user = await User.findOneAndUpdate({email:req.body.email},{pan:req.body.password}).select('+password').select('+pan').select('+email').select('+username');
+        
+        if (!user) {
+            res.status(200).json({
+                data: {
+                    status: 'danger',
+                    message: 'User does not exist'
+                }
+            });
+        } else {
+            console.log(user)
+             const templete = 'resetPassword';
+             if (await mail(user.email, templete, user.username, user._id)) {
+                 res.status(200).json({
+                     data: {
+                         status: 'success',
+                         message: 'Mail sent'
+                     }
+                 });
+             }
+        }
+    } catch (e) {
+        console.log(e)
+    }
+
+};
+
+exports.resetPassword = async (req, res) => {
+    try {
+        const id = req.params.token;
+        const user = await User.findById(id).select('+pan').select('+password');
+        if (user) {
+            console.log(user.pan)
+            user.password = user.pan;
+            user.pan = '';
+            user.save();
+            res.redirect('http://127.0.0.1:3000/login');
+
+
+        } else {
+        
+            res.redirect('http://127.0.0.1:3000/forgotPassword');
+        }
+    } catch (e) {
+        console.log(e)
+    }
+
+};
+
 exports.logout = async (req, res) => {
     res.clearCookie('jwt');
     res.redirect('/');
@@ -263,8 +328,6 @@ exports.logout = async (req, res) => {
 //-----------------------------------------------------------------------------------------------------//
 
 const userRouter = `
-
-
 const express = require('express');
 const { signup, login, protect2, logout } = require('../controllers/authController');
 const { signup_view ,login_view, login_page, home_view } = require('../controllers/userController');
@@ -277,6 +340,9 @@ userRouter.route('/login/:slug').get(login_view);
 userRouter.route('/login').get( protect2, login_page);
 userRouter.route('/login').post(login);
 userRouter.route('/logout').get(logout);
+userRouter.route('/forgotPassword').get(protect2 ,reset_view);
+userRouter.route('/reset').post(resetToken);
+userRouter.route('/forgotPassword/:token').get(protect2,resetPassword);
 
 
 module.exports = userRouter;`;
@@ -319,6 +385,10 @@ const Schema =new mongoose.Schema({
         type: Boolean,
         default: false,
         select:false
+    },
+    pan: {
+    type:String,
+    select:false
     }
 
 });
@@ -375,10 +445,10 @@ module.exports = class Email{
         
     }
 
-    async send(name,token) {
+    async send(templete,name,token) {
         // 1. Render HTML based on a pug templete
         
-        const html = pug.renderFile('../views/emails/mailtrap.pug', {
+        const html = pug.renderFile('../views/%{templete}.pug', {
             name: name,
             token:token
         });
@@ -518,6 +588,25 @@ head
       a(href='http://127.0.0.1:3000/login/%{token}')= 'http://127.0.0.1:3000/login/%{token}'
 `;
 
+const reset_pug = `
+extends index
+block content
+  .container
+    .box.mx-auto.d-block
+      .inner-box.mx-auto.d-block
+        p.loginv Reset Password
+      .inner-box.mx-auto.d-block
+        input#email(type='email' name='email' placeholder='Email address')
+      .inner-box.mx-auto.d-block
+        input#password(type='password' name='password' placeholder='New password')
+      .inner-box.mx-auto.d-block
+        input#confirmPassword(type='password' name='confirmPassword' placeholder='Confirm password')
+      .inner-box.mx-auto.d-block
+        button.btn#Verify(type='submit') Submit
+
+  script(src='js/bundle.js')`;
+
+
 const webpack_config = `
 const path = require('path');
 
@@ -547,7 +636,6 @@ export const showAlert = (type, msg) => {
 `;
 
 const indexjs = `
-
 import '@babel/polyfill';
 import { sendRequest, sendRequest2 } from './requests';
 import validator from 'validator';
@@ -619,7 +707,29 @@ if (window.location.href === 'http://127.0.0.1:3000/login') {
       
               
     });
-}`;
+}
+
+if (window.location.href === 'http://127.0.0.1:3000/forgotPassword') {
+    
+    const submition = document.querySelector('#Verify');
+    submition.addEventListener('click', function () { 
+        const email = document.querySelector('#email').value;
+        const pass = document.querySelector('#password').value;
+        const newPass = document.querySelector('#confirmPassword').value;
+        const valid = validator.isEmail(email) && validator.isLength(pass, { min: 8 }) && validator.equals(pass, newPass);
+        if (valid) {
+            sendRequest3(email,pass);
+            myFunction();
+            document.querySelector('#email').value = '';
+            document.querySelector('#password').value = '';
+            document.querySelector('#confirmPassword').value = '';
+            reload();
+
+        } else {
+            showAlert('danger', 'Wrong email or shot password or inmatch password');
+        }
+    })
+ }`;
 
 const request = `
 import '@babel/polyfill';
@@ -672,7 +782,33 @@ export const sendRequest2 = async (email, password) => {
     } catch (e) {
         console.log(e);
   }
-};`;
+};
+
+export const sendRequest3 = async (email,password) => {
+    try {
+        const res = await axios({
+            method: 'post',
+            url: 'http://127.0.0.1:3000/reset',
+            data: {
+                email,
+                password
+            }
+        });
+        console.log(email,password)
+        if (res.data.data.status === 'success') {
+           
+            showAlert('success', res.data.data.message);
+    
+        } else {
+           
+             showAlert('danger', res.data.data.message);
+        }
+        
+    } catch (e) {
+        console.log(e);
+  }
+};
+`;
 
 const server = `
 const mongoose = require('mongoose');
@@ -705,7 +841,7 @@ const express = require('express');
 const userRouter = require('./routes/userRouter');
 const path = require('path');
 const cookieParser = require('cookie-parser');
-const { isLogggedIn } = require('./controller/authController');
+const { isLogggedIn } = require('./controllers/authController');
 
 
 
@@ -754,6 +890,7 @@ exports.auth = () => {
         fs.writeFile(`views/login.pug`, login, function (err) { if (err) throw err; });
         fs.writeFile(`views/signup.pug`, signup, function (err) { if (err) throw err; });
         fs.writeFile(`views/mailtrap.pug`, email_pug, function (err) { if (err) throw err; });
+        fs.writeFile(`views/reset.pug`, reset_pug, function (err) { if (err) throw err; });
     
     });
     fs.mkdir('utilities', function () {
