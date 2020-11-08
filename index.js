@@ -137,8 +137,8 @@ exports.signup = async (req, res) => {
              });
             if (newUser) {
                 const token = signToken(newUser._id);
-            
-                if (await mail(newUser.email, newUser.name, token)) {
+                const templete = 'mailtrap';
+                if (await mail(newUser.email,templete, newUser.name, token)) {
                 res.status(200).json({
                 data: {
                     status: 'success',
