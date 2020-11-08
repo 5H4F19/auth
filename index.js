@@ -117,9 +117,9 @@ const createSendToken = (user, res) => {
        
 };
 
-const mail = async (email, name, token) => {
+const mail = async (email,templete, name, token) => {
     
-    const mail = new Email(email).send(name, token);
+    const mail = new Email(email).send(templete,name, token);
     return mail ? 1 : 0;
 
 }
